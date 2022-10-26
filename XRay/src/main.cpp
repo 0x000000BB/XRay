@@ -20,6 +20,8 @@
 #include <vector>
 #include <iostream>
 #include <stdio.h>
+#include <filesystem>
+#include <string>
 
 XRay::RayTracer renderer;
 
@@ -29,6 +31,15 @@ bool rendering3 = false;
 bool rendering4 = false;
 bool saving = false;
 bool hasRendered = false;
+
+std::string ReplaceAll(std::string str, const std::string& from, const std::string& to) {
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
 
 XRay::Scene random_scene() {
     XRay::Scene scene;
@@ -81,7 +92,9 @@ XRay::Scene random_scene() {
 
     //auto material3 = make_shared<XRay::Metal>(Color(0.7, 0.6, 0.5), 0.0);
     //scene.add(make_shared<XRay::Sphere>(vec3(4, 1, 0), 1.0, material3, "Metal Sphere"));
-    auto earth_texture = make_shared<XRay::ImageTexture>("E:/Dev/C++/XRay/XRay/src/Renderer/earthmap.jpg");
+    std::filesystem::path path = std::filesystem::current_path();
+    path += "/src/Renderer/earthmap.jpg";
+    auto earth_texture = make_shared<XRay::ImageTexture>(path.generic_string().c_str());
     auto earth_surface = make_shared<XRay::Lambertian>(earth_texture);
     auto globe = make_shared<XRay::Sphere>(vec3(4, 1, 0), 1.0, earth_surface, "globe");
     scene.add(globe);
@@ -250,7 +263,9 @@ int main() {
         if (savePressed && !saving) {
             if (saveThread.joinable())
                 saveThread.detach();
-            saveThread = std::thread(saveImage, fb, "C:/Users/Anwender/Desktop/images.ppm", image_width, image_height);
+            std::filesystem::path path = std::filesystem::current_path(); 
+            path += "/Examples/image.ppm";
+            saveThread = std::thread(saveImage, fb, path.generic_string(), image_width, image_height);
         }
 
         imGuiRenderer.End(window);
