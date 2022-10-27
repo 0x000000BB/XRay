@@ -1,5 +1,5 @@
 # XRay
-Ray Tracer written in c++ using imgui
+Ray Tracer written in c++ using imgui.
 It can render scenes with multiple objects like Spheres or Rectangles.
 It also supports lights, textures and motion blur.
 
