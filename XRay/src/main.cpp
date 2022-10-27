@@ -9,6 +9,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/MovingSphere.h"
 #include "Renderer/Texture.h"
+#include "Scenes.h"
 
 #include "GUI/ImGuiRendererer.h"
 
@@ -41,66 +42,7 @@ std::string ReplaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
-XRay::Scene random_scene() {
-    XRay::Scene scene;
 
-    auto checker = make_shared<XRay::CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
-    scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(checker), "Ground"));
-
-    int sphereCount = 0;
-
-    for (int a = 0; a < 6; a++) {
-        for (int b = 0; b < 6; b++) {
-            auto choose_mat = random_double();
-            vec3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
-
-            if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
-                shared_ptr<XRay::Material> sphere_material;
-
-                if (choose_mat < 0.8) {
-                    // diffuse
-                    auto albedo = Color::random() * Color::random();
-                    sphere_material = make_shared<XRay::Lambertian>(albedo);
-                    auto center2 = center + vec3(0, random_double(0, .5), 0);
-                    scene.add(make_shared<XRay::MovingSphere>(
-                        center, center2, 0.0, 1.0, 0.2, sphere_material, std::string("Sphere " + std::to_string(sphereCount))));
-                    sphereCount++;
-                }
-                else if (choose_mat < 0.95) {
-                    // metal
-                    auto albedo = Color::random(0.5, 1);
-                    auto fuzz = random_double(0, 0.5);
-                    sphere_material = make_shared<XRay::Metal>(albedo, fuzz);
-                    scene.add(make_shared<XRay::Sphere>(center, 0.2, sphere_material, std::string("Sphere " + std::to_string(sphereCount))));
-                    sphereCount++;
-                }
-                else {
-                    // glass
-                    sphere_material = make_shared<XRay::Dielectric>(1.5);
-                    scene.add(make_shared<XRay::Sphere>(center, 0.2, sphere_material, std::string("Sphere " + std::to_string(sphereCount))));
-                    sphereCount++;
-                }
-            }
-        }
-    }
-
-    auto material1 = make_shared<XRay::Dielectric>(1.5);
-    scene.add(make_shared<XRay::Sphere>(vec3(0, 1, 0), 1.0, material1, "Dielectric Sphere"));
-
-    auto material2 = make_shared<XRay::Lambertian>(Color(0.4, 0.2, 0.1));
-    scene.add(make_shared<XRay::Sphere>(vec3(-4, 1, 0), 1.0, material2, "Lambertian Sphere"));
-
-    //auto material3 = make_shared<XRay::Metal>(Color(0.7, 0.6, 0.5), 0.0);
-    //scene.add(make_shared<XRay::Sphere>(vec3(4, 1, 0), 1.0, material3, "Metal Sphere"));
-    std::filesystem::path path = std::filesystem::current_path();
-    path += "/src/Renderer/earthmap.jpg";
-    auto earth_texture = make_shared<XRay::ImageTexture>(path.generic_string().c_str());
-    auto earth_surface = make_shared<XRay::Lambertian>(earth_texture);
-    auto globe = make_shared<XRay::Sphere>(vec3(4, 1, 0), 1.0, earth_surface, "globe");
-    scene.add(globe);
-
-    return scene;
-}
 
 void setRendering(int index, bool value) {
     if (index == 1)
@@ -113,10 +55,10 @@ void setRendering(int index, bool value) {
         rendering4 = value;
 }
 
-void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, const XRay::Camera& camera, int depth, int threadIndex) {
+void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, const XRay::Camera& camera, int depth, int threadIndex, const Color& background) {
     setRendering(threadIndex, true);
     hasRendered = true;
-    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, camera, depth);
+    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, camera, depth, background);
     setRendering(threadIndex, false);
 }
 
@@ -174,8 +116,6 @@ int main() {
     int samples_per_pixel = 500;
     int max_depth = 50;
 
-    
-    XRay::Scene scene = random_scene();
     //auto material_ground = make_shared<XRay::Lambertian>(Color(0.8, 0.8, 0.0));
     //auto material_center = make_shared<XRay::Lambertian>(Color(0.1, 0.2, 0.5));
     //auto material_left = make_shared<XRay::Dielectric>(1.5);
@@ -188,14 +128,17 @@ int main() {
     //scene.add(make_shared<XRay::Sphere>(vec3(1.0, 0.0, -1.0), 0.5, material_right));
 
 
-    vec3 lookfrom(13, 2, 3);
-    vec3 lookat(0, 0, 0);
-    vec3 vup(0, 1, 0);
-    auto dist_to_focus = 10.0;
-    auto aperture = 0.1;
+    //vec3 lookfrom(13, 2, 3);
+    //vec3 lookat(0, 0, 0);
+    //vec3 vup(0, 1, 0);
+    //auto dist_to_focus = 10.0;
+    //auto aperture = 0.1;
 
     
-    XRay::Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    XRay::Camera cam;
+    Color background = Color(0.70, 0.80, 1.00);
+
+    XRay::Scene scene = simple_light(cam, background);
 
     Framebuffer fb = renderer.createFrameBuffer(image_width, image_height);
 
@@ -254,10 +197,10 @@ int main() {
                 renderThread4.detach();
             fb = renderer.createFrameBuffer(image_width, image_height);
             int height_per_thread = image_height / 4;
-            renderThread1 = std::thread(render, fb, image_width, image_height, 0, height_per_thread, samples_per_pixel, scene , cam, max_depth, 1);
-            renderThread2 = std::thread(render, fb, image_width, image_height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 2);
-            renderThread3 = std::thread(render, fb, image_width, image_height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 3);
-            renderThread4 = std::thread(render, fb, image_width, image_height, image_height - 3 * height_per_thread, image_height, samples_per_pixel, scene, cam, max_depth, 4);
+            renderThread1 = std::thread(render, fb, image_width, image_height, 0, height_per_thread, samples_per_pixel, scene , cam, max_depth, 1, background);
+            renderThread2 = std::thread(render, fb, image_width, image_height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 2, background);
+            renderThread3 = std::thread(render, fb, image_width, image_height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 3, background);
+            renderThread4 = std::thread(render, fb, image_width, image_height, image_height - 3 * height_per_thread, image_height, samples_per_pixel, scene, cam, max_depth, 4, background);
 
         }
         if (savePressed && !saving) {

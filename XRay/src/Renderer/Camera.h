@@ -4,6 +4,8 @@ namespace XRay {
 
     class Camera {
     public:
+        Camera() = default;
+
         Camera(
             vec3 lookfrom,
             vec3 lookat,
@@ -43,7 +45,7 @@ namespace XRay {
             return Ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, random_double(time0, time1));
         }
 
-    private:
+    public:
         vec3 origin;
         vec3 lower_left_corner;
         vec3 horizontal;

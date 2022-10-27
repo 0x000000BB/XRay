@@ -175,6 +175,8 @@
     <ClInclude Include="src\Renderer\Scene.h" />
     <ClInclude Include="src\Renderer\Sphere.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
+    <ClInclude Include="src\Renderer\AARect.h" />
+    <ClInclude Include="src\Scenes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
