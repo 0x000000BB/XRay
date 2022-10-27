@@ -21,6 +21,18 @@
     <ClCompile Include="src\Core\Window.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependencies\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Renderer\RayTracer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GUI\ImGuiRenderer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
     <ClCompile Include="Dependencies\imgui\imgui.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -30,33 +42,18 @@
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_impl_opengl3.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Dependencies\imgui\imgui_tables.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Dependencies\imgui\imgui_widgets.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\RayTracer.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GUI\ImGuiRenderer.cpp">
+    <ClCompile Include="Dependencies\imgui\main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Window.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imconfig.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imgui.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\imgui\imgui_impl_glfw.h">
@@ -66,18 +63,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imgui_internal.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imstb_rectpack.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imstb_textedit.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\imgui\imstb_truetype.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\vec3.h">
@@ -135,6 +120,30 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\AARect.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\std_image\std_image.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imconfig.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imgui.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imgui_internal.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imstb_rectpack.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imstb_textedit.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imstb_truetype.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\imgui\imgui_impl_win32.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
