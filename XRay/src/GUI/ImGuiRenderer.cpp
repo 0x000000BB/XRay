@@ -39,8 +39,10 @@ namespace XRay {
 	}
 
 
-    void ImGuiRenderer::renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, int& samples, int& depth, Scene& scene) {
+    void ImGuiRenderer::renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, char* filename, int& samples, int& depth, Scene& scene) {
         ImGui::Begin("Settings");
+        int length = sizeof(filename) / sizeof(char);
+        ImGui::InputText("Filename", filename, length);
         renderButtonPressed = ImGui::Button("Render");
         saveButtonPressed = ImGui::Button("Save");
         ImGui::SliderInt("Samples", &samples, 1, 1000);

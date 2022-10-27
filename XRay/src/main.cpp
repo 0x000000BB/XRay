@@ -42,7 +42,14 @@ std::string ReplaceAll(std::string str, const std::string& from, const std::stri
     return str;
 }
 
+float max(float value, float max) {
 
+    if (value < max) {
+        return value;
+    }
+
+    return max;
+}
 
 void setRendering(int index, bool value) {
     if (index == 1)
@@ -78,9 +85,9 @@ void saveImage(Framebuffer fb, std::string filePath, int nx, int ny) {
     for (int j = ny - 1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             size_t pixel_index = j * nx + i;
-            float r = fb[pixel_index].x();
-            float g = fb[pixel_index].y();
-            float b = fb[pixel_index].z();
+            float r = max(fb[pixel_index].x(), 1);
+            float g = max(fb[pixel_index].y(), 1);
+            float b = max(fb[pixel_index].z(), 1);
             int ir = int(255.99 * r);
             int ig = int(255.99 * g);
             int ib = int(255.99 * b);
@@ -185,7 +192,9 @@ int main() {
         imGuiRenderer.renderViewport((ImTextureID)texture, image_width, image_height);
         bool renderPressed = false;
         bool savePressed = false;
-        imGuiRenderer.renderSettings(renderPressed, savePressed, samples_per_pixel, max_depth, scene);
+        char* filename = new char[512]; 
+        strcpy(filename, "image.ppm");
+        imGuiRenderer.renderSettings(renderPressed, savePressed, filename, samples_per_pixel, max_depth, scene);
         if (renderPressed) {
             if(renderThread1.joinable() && !rendering1)
                 renderThread1.detach();
@@ -207,7 +216,7 @@ int main() {
             if (saveThread.joinable())
                 saveThread.detach();
             std::filesystem::path path = std::filesystem::current_path(); 
-            path += "/Examples/image.ppm";
+            path += "/Examples/lights.ppm";
             saveThread = std::thread(saveImage, fb, path.generic_string(), image_width, image_height);
         }
 
