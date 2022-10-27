@@ -36,9 +36,6 @@
     <ClCompile Include="Dependencies\imgui\imgui.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -48,7 +45,7 @@
     <ClCompile Include="Dependencies\imgui\imgui_widgets.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="Dependencies\imgui\main.cpp">
+    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -120,9 +117,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\AARect.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\std_image\std_image.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\imgui\imconfig.h">
