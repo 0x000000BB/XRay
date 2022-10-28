@@ -21,7 +21,9 @@ namespace XRay {
         return emitted + attenuation * RayColor(scattered, background, scene, depth - 1);
     }
 
-	void RayTracer::render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const Scene& scene, const Camera& camera, int depth, const Color& background) {
+	void RayTracer::render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const Scene& scene, int depth) {
+        Camera camera = scene.camera;
+        Color background = scene.backgroundColor;
         for (int j = endHeight; j > startHeight; --j) {
             for (int i = 0; i < width; ++i) {
                 Color color(0, 0, 0);

@@ -16,7 +16,7 @@ namespace XRay {
 	public:
 		RayTracer() = default;
 
-		void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const Scene& scene, const Camera& camera, int depth, const Color& background);
+		void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const Scene& scene, int depth);
 		Framebuffer createFrameBuffer(int width, int height);
 
 	private:

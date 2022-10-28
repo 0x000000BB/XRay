@@ -5,12 +5,23 @@
 #include "Renderer/Sphere.h"
 #include "Renderer/MovingSphere.h"
 #include "Renderer/AARect.h"
+#include "Renderer/Box.h"
+#include "Renderer/Translate.h"
 
 #include <iostream>
 #include <filesystem>
 
-XRay::Scene random_scene(XRay::Camera&, Color& background) {
-    XRay::Scene scene;
+XRay::Scene random_scene() {
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+    auto aperture = 0.1;
+    auto aspect_ratio = 3.0 / 2.0;
+
+    XRay::Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    Color background(0, 0, 0);
+    XRay::Scene scene(cam, background, 1200, aspect_ratio);
 
     auto checker = make_shared<XRay::CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
     scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(checker), "Ground"));
@@ -65,8 +76,17 @@ XRay::Scene random_scene(XRay::Camera&, Color& background) {
     return scene;
 }
 
-XRay::Scene random_scene_moving(XRay::Camera&, Color& background) {
-    XRay::Scene scene;
+XRay::Scene random_scene_moving() {
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+    auto aperture = 0.1;
+    auto aspect_ratio = 3.0 / 2.0;
+
+    XRay::Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    Color background(0, 0, 0);
+    XRay::Scene scene(cam, background, 1200, aspect_ratio);
 
     auto checker = make_shared<XRay::CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
     scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(checker), "Ground"));
@@ -120,8 +140,17 @@ XRay::Scene random_scene_moving(XRay::Camera&, Color& background) {
     return scene;
 }
 
-XRay::Scene random_scene_texture(XRay::Camera&, Color& background) {
-    XRay::Scene scene;
+XRay::Scene random_scene_texture() {
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+    auto aperture = 0.1;
+    auto aspect_ratio = 3.0 / 2.0;
+
+    XRay::Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    Color background(0, 0, 0);
+    XRay::Scene scene(cam, background, 1200, aspect_ratio);
 
     auto checker = make_shared<XRay::CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
     scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(checker), "Ground"));
@@ -181,8 +210,17 @@ XRay::Scene random_scene_texture(XRay::Camera&, Color& background) {
     return scene;
 }
 
-XRay::Scene random_scene_moving_texture(XRay::Camera&, Color& background) {
-    XRay::Scene scene;
+XRay::Scene random_scene_moving_texture() {
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 10.0;
+    auto aperture = 0.1;
+    auto aspect_ratio = 3.0 / 2.0;
+
+    XRay::Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    Color background(0, 0, 0);
+    XRay::Scene scene(cam, background, 1200, aspect_ratio);
 
     auto checker = make_shared<XRay::CheckerTexture>(Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
     scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(checker), "Ground"));
@@ -242,8 +280,22 @@ XRay::Scene random_scene_moving_texture(XRay::Camera&, Color& background) {
     return scene;
 }
 
-XRay::Scene simple_light(XRay::Camera& cam, Color& background) {
-    XRay::Scene scene;
+XRay::Scene simple_light() {
+
+    Color background = Color(0.1, 0.1, 0.1);
+    vec3 lookfrom = vec3(26, 3, 6);
+    vec3 lookat = vec3(0, 2, 0);
+    auto vfov = 20.0;
+
+    auto aspect_ratio = 3.0 / 2.0;
+
+    vec3 vup(0, 1, 0);
+    auto dist_to_focus = 23.0;
+    auto aperture = 0.1;
+    
+    XRay::Camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+
+    XRay::Scene scene(cam, background, 1200, aspect_ratio);
 
     auto texture = make_shared<XRay::SolidColor>(Color(0.5, 0.2, 0.7));
     scene.add(make_shared<XRay::Sphere>(vec3(0, -1000, 0), 1000, make_shared<XRay::Lambertian>(texture), "Sphere 1"));
@@ -252,20 +304,43 @@ XRay::Scene simple_light(XRay::Camera& cam, Color& background) {
     auto difflight = make_shared<XRay::DiffuseLight>(Color(4, 4, 4));
     scene.add(make_shared<XRay::XYRect>(3, 5, 1, 3, -2, difflight));
 
-    background = Color(0, 0, 0);
-    vec3 lookfrom = vec3(26, 3, 6);
-    vec3 lookat = vec3(0, 2, 0);
-    auto vfov = 20.0;
-    
-    auto aspect_ratio = 3.0 / 2.0;
+    return scene;
+}
 
+XRay::Scene cornell_box() {
+
+    vec3 lookfrom(278, 278, -800);
+    vec3 lookat(278, 278, 0);
     vec3 vup(0, 1, 0);
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
+    auto aspect_ratio = 1.0;
 
+    XRay::Camera cam(lookfrom, lookat, vup, 40, aspect_ratio, aperture, dist_to_focus);
+    Color background(0, 0, 0);
+    XRay::Scene scene(cam, background, 600, aspect_ratio);
 
-    cam = XRay::Camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    auto red = make_shared<XRay::Lambertian>(Color(.65, .05, .05));
+    auto white = make_shared<XRay::Lambertian>(Color(.73, .73, .73));
+    auto green = make_shared<XRay::Lambertian>(Color(.12, .45, .15));
+    auto light = make_shared<XRay::DiffuseLight>(Color(15, 15, 15));
 
+    scene.add(make_shared<XRay::YZRect>(0, 555, 0, 555, 555, green));
+    scene.add(make_shared<XRay::YZRect>(0, 555, 0, 555, 0, red));
+    scene.add(make_shared<XRay::XZRect>(213, 343, 227, 332, 554, light));
+    scene.add(make_shared<XRay::XZRect>(0, 555, 0, 555, 0, white));
+    scene.add(make_shared<XRay::XZRect>(0, 555, 0, 555, 555, white));
+    scene.add(make_shared<XRay::XYRect>(0, 555, 0, 555, 555, white));
+
+    std::shared_ptr<XRay::Hittable> box1 = std::make_shared<XRay::Box>(vec3(0, 0, 0), vec3(165, 330, 165), white);
+    box1 = std::make_shared<XRay::RotateY>(box1, 15);
+    box1 = std::make_shared<XRay::Translate>(box1, vec3(265, 0, 295));
+    scene.add(box1);
+
+    std::shared_ptr<XRay::Hittable> box2 = std::make_shared<XRay::Box>(vec3(0, 0, 0), vec3(165, 165, 165), white);
+    box2 = std::make_shared<XRay::RotateY>(box2, -18);
+    box2 = std::make_shared<XRay::Translate>(box2, vec3(130, 0, 65));
+    scene.add(box2);
 
     return scene;
 }

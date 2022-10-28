@@ -166,9 +166,11 @@
     <ClInclude Include="src\Core\XRay.h" />
     <ClInclude Include="src\GUI\ImGuiRendererer.h" />
     <ClInclude Include="src\Renderer\AABB.h" />
+    <ClInclude Include="src\Renderer\Box.h" />
     <ClInclude Include="src\Renderer\BVHNode.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
     <ClInclude Include="src\Renderer\Hittable.h" />
+    <ClInclude Include="src\Renderer\HittableList.h" />
     <ClInclude Include="src\Renderer\Material.h" />
     <ClInclude Include="src\Renderer\MovingSphere.h" />
     <ClInclude Include="src\Renderer\Ray.h" />
@@ -177,6 +179,7 @@
     <ClInclude Include="src\Renderer\Sphere.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\AARect.h" />
+    <ClInclude Include="src\Renderer\Translate.h" />
     <ClInclude Include="src\Scenes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

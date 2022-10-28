@@ -63,10 +63,10 @@ void setRendering(int index, bool value) {
         rendering4 = value;
 }
 
-void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, const XRay::Camera& camera, int depth, int threadIndex, const Color& background) {
+void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, int depth, int threadIndex) {
     setRendering(threadIndex, true);
     hasRendered = true;
-    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, camera, depth, background);
+    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, depth);
     setRendering(threadIndex, false);
 }
 
@@ -118,37 +118,12 @@ int main() {
 
     imGuiRenderer.init(window);
 
-    auto aspect_ratio = 3.0 / 2.0;
-    int image_width = 1200;
-    int image_height = static_cast<int>(image_width / aspect_ratio);
     int samples_per_pixel = 500;
     int max_depth = 50;
 
-    //auto material_ground = make_shared<XRay::Lambertian>(Color(0.8, 0.8, 0.0));
-    //auto material_center = make_shared<XRay::Lambertian>(Color(0.1, 0.2, 0.5));
-    //auto material_left = make_shared<XRay::Dielectric>(1.5);
-    //auto material_right = make_shared<XRay::Metal>(Color(0.8, 0.6, 0.2), 0.0);
-    //
-    //scene.add(make_shared<XRay::Sphere>(vec3(0.0, -100.5, -1.0), 100.0, material_ground));
-    //scene.add(make_shared<XRay::Sphere>(vec3(0.0, 0.0, -1.0), 0.5, material_center));
-    //scene.add(make_shared<XRay::Sphere>(vec3(-1.0, 0.0, -1.0), 0.5, material_left));
-    //scene.add(make_shared<XRay::Sphere>(vec3(-1.0, 0.0, -1.0), -0.4, material_left));
-    //scene.add(make_shared<XRay::Sphere>(vec3(1.0, 0.0, -1.0), 0.5, material_right));
+    XRay::Scene scene = simple_light();
 
-
-    //vec3 lookfrom(13, 2, 3);
-    //vec3 lookat(0, 0, 0);
-    //vec3 vup(0, 1, 0);
-    //auto dist_to_focus = 10.0;
-    //auto aperture = 0.1;
-
-    
-    XRay::Camera cam;
-    Color background = Color(0.70, 0.80, 1.00);
-
-    XRay::Scene scene = simple_light(cam, background);
-
-    Framebuffer fb = renderer.createFrameBuffer(image_width, image_height);
+    Framebuffer fb = renderer.createFrameBuffer(scene.width, scene.height);
 
     const unsigned int threadCount = std::thread::hardware_concurrency() / 2;
     std::thread renderThread1;
@@ -186,11 +161,11 @@ int main() {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_FLOAT, fb);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scene.width, scene.height, 0, GL_RGB, GL_FLOAT, fb);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         imGuiRenderer.Begin();
-        imGuiRenderer.renderViewport((ImTextureID)texture, image_width, image_height);
+        imGuiRenderer.renderViewport((ImTextureID)texture, scene.width, scene.height);
         bool renderPressed = false;
         bool savePressed = false;
         char* filename = new char[512]; 
@@ -205,12 +180,12 @@ int main() {
                 renderThread3.detach();
             if (renderThread4.joinable() && !rendering4)
                 renderThread4.detach();
-            fb = renderer.createFrameBuffer(image_width, image_height);
-            int height_per_thread = image_height / 4;
-            renderThread1 = std::thread(render, fb, image_width, image_height, 0, height_per_thread, samples_per_pixel, scene , cam, max_depth, 1, background);
-            renderThread2 = std::thread(render, fb, image_width, image_height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 2, background);
-            renderThread3 = std::thread(render, fb, image_width, image_height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, cam, max_depth, 3, background);
-            renderThread4 = std::thread(render, fb, image_width, image_height, image_height - 3 * height_per_thread, image_height, samples_per_pixel, scene, cam, max_depth, 4, background);
+            fb = renderer.createFrameBuffer(scene.width, scene.height );
+            int height_per_thread = scene.height / 4;
+            renderThread1 = std::thread(render, fb, scene.width, scene.height, 0, height_per_thread, samples_per_pixel, scene , max_depth, 1);
+            renderThread2 = std::thread(render, fb, scene.width, scene.height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, max_depth, 2);
+            renderThread3 = std::thread(render, fb, scene.width, scene.height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, max_depth, 3);
+            renderThread4 = std::thread(render, fb, scene.width, scene.height, scene.height - 3 * height_per_thread, scene.height, samples_per_pixel, scene, max_depth, 4);
 
         }
         if (savePressed && !saving) {
@@ -218,7 +193,7 @@ int main() {
                 saveThread.detach();
             std::filesystem::path path = std::filesystem::current_path(); 
             path += "/Examples/lights.ppm";
-            saveThread = std::thread(saveImage, fb, path.generic_string(), image_width, image_height);
+            saveThread = std::thread(saveImage, fb, path.generic_string(), scene.width, scene.height);
         }
 
         imGuiRenderer.End(window);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hittable.h"
+#include "Camera.h"
 
 #include <memory>
 #include <vector>
@@ -11,8 +12,18 @@ using std::make_shared;
 namespace XRay {
     class Scene : public Hittable {
     public:
-        Scene() {}
-        Scene(shared_ptr<Hittable> object) { add(object); }
+        //Scene() {}
+        Scene(Camera& cam, Color& background, int width, float aspect_ratio) {
+            camera = cam;
+            backgroundColor = background;
+            this->aspect_ratio = aspect_ratio;
+            this->width = width;
+            this->height = static_cast<int>(width / aspect_ratio);
+        }
+        Scene(shared_ptr<Hittable> object, Camera& cam) { 
+            add(object); 
+            camera = cam;
+        }
 
         void clear() { objects.clear(); }
         void add(shared_ptr<Hittable> object) { objects.push_back(object); }
@@ -50,6 +61,11 @@ namespace XRay {
 
     public:
         std::vector<shared_ptr<Hittable>> objects;
+        Camera camera;
+        Color backgroundColor;
+        int width;
+        float aspect_ratio;
+        int height;
     };
 
 }
