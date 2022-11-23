@@ -12,6 +12,7 @@ namespace XRay {
         Sphere(vec3 cen, double r, std::shared_ptr<Material> m, std::string n) : center(cen), radius(r) {
             mat_ptr = m;
             name = n;
+            typ = SphereT;
         };
 
         bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override{

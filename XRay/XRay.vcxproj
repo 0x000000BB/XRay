@@ -160,6 +160,9 @@
     <ClInclude Include="Dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="Dependencies\imgui\stb_image.h" />
     <ClInclude Include="src\Core\Constants.h" />
+    <ClInclude Include="src\Core\Saving\Deserializer.h" />
+    <ClInclude Include="src\Core\Saving\FileDialog.h" />
+    <ClInclude Include="src\Core\Saving\Serializer.h" />
     <ClInclude Include="src\Core\Util.h" />
     <ClInclude Include="src\Core\vec3.h" />
     <ClInclude Include="src\Core\Window.h" />
@@ -169,10 +172,14 @@
     <ClInclude Include="src\Renderer\Box.h" />
     <ClInclude Include="src\Renderer\BVHNode.h" />
     <ClInclude Include="src\Renderer\Camera.h" />
+    <ClInclude Include="src\Renderer\ConstantMedium.h" />
+    <ClInclude Include="src\Renderer\FlipFace.h" />
     <ClInclude Include="src\Renderer\Hittable.h" />
     <ClInclude Include="src\Renderer\HittableList.h" />
     <ClInclude Include="src\Renderer\Material.h" />
     <ClInclude Include="src\Renderer\MovingSphere.h" />
+    <ClInclude Include="src\Renderer\ONB.h" />
+    <ClInclude Include="src\Renderer\Pdf.h" />
     <ClInclude Include="src\Renderer\Ray.h" />
     <ClInclude Include="src\Renderer\RayTracer.h" />
     <ClInclude Include="src\Renderer\Scene.h" />

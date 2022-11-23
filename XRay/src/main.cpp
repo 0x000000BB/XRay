@@ -11,6 +11,9 @@
 #include "Renderer/Texture.h"
 #include "Scenes.h"
 
+#include "Core/Saving/Serializer.h"
+#include "Core/Saving/Deserializer.h"
+
 #include "GUI/ImGuiRendererer.h"
 
 #include "imgui.h"
@@ -63,10 +66,10 @@ void setRendering(int index, bool value) {
         rendering4 = value;
 }
 
-void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, int depth, int threadIndex) {
+void render(Framebuffer fb, int width, int height, int startHeight, int endHeight, int samples, const XRay::Scene& scene, int depth, int threadIndex, std::shared_ptr<XRay::Hittable> lights) {
     setRendering(threadIndex, true);
     hasRendered = true;
-    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, depth);
+    renderer.render(fb, width, height, startHeight, endHeight, samples, scene, depth, lights);
     setRendering(threadIndex, false);
 }
 
@@ -121,7 +124,10 @@ int main() {
     int samples_per_pixel = 500;
     int max_depth = 50;
 
-    XRay::Scene scene = simple_light();
+
+    XRay::Deserializer deserializer;
+    XRay::Scene scene = deserializer.deserialize("E:/random_scene.xray");
+    //XRay::Scene scene = random_scene();
 
     Framebuffer fb = renderer.createFrameBuffer(scene.width, scene.height);
 
@@ -165,12 +171,14 @@ int main() {
         glGenerateMipmap(GL_TEXTURE_2D);
 
         imGuiRenderer.Begin();
+
         imGuiRenderer.renderViewport((ImTextureID)texture, scene.width, scene.height);
         bool renderPressed = false;
         bool savePressed = false;
+        bool openPressed = false;
         char* filename = new char[512]; 
         strcpy(filename, "image.ppm");
-        imGuiRenderer.renderSettings(renderPressed, savePressed, filename, samples_per_pixel, max_depth, scene);
+        imGuiRenderer.renderSettings(renderPressed, savePressed, openPressed, filename, samples_per_pixel, max_depth, scene);
         if (renderPressed) {
             if(renderThread1.joinable() && !rendering1)
                 renderThread1.detach();
@@ -182,18 +190,23 @@ int main() {
                 renderThread4.detach();
             fb = renderer.createFrameBuffer(scene.width, scene.height );
             int height_per_thread = scene.height / 4;
-            renderThread1 = std::thread(render, fb, scene.width, scene.height, 0, height_per_thread, samples_per_pixel, scene , max_depth, 1);
-            renderThread2 = std::thread(render, fb, scene.width, scene.height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, max_depth, 2);
-            renderThread3 = std::thread(render, fb, scene.width, scene.height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, max_depth, 3);
-            renderThread4 = std::thread(render, fb, scene.width, scene.height, scene.height - 3 * height_per_thread, scene.height, samples_per_pixel, scene, max_depth, 4);
+            renderThread1 = std::thread(render, fb, scene.width, scene.height, 0, height_per_thread, samples_per_pixel, scene , max_depth, 1, scene.lights);
+            renderThread2 = std::thread(render, fb, scene.width, scene.height, height_per_thread, 2 * height_per_thread, samples_per_pixel, scene, max_depth, 2, scene.lights);
+            renderThread3 = std::thread(render, fb, scene.width, scene.height, 2 * height_per_thread, 3 * height_per_thread, samples_per_pixel, scene, max_depth, 3, scene.lights);
+            renderThread4 = std::thread(render, fb, scene.width, scene.height, scene.height - 3 * height_per_thread, scene.height, samples_per_pixel, scene, max_depth, 4, scene.lights);
 
         }
-        if (savePressed && !saving) {
-            if (saveThread.joinable())
-                saveThread.detach();
-            std::filesystem::path path = std::filesystem::current_path(); 
-            path += "/Examples/lights.ppm";
-            saveThread = std::thread(saveImage, fb, path.generic_string(), scene.width, scene.height);
+        //if (savePressed && !saving) {
+        //    if (saveThread.joinable())
+        //        saveThread.detach();
+        //    std::filesystem::path path = std::filesystem::current_path(); 
+        //    path += "/Examples/lights.ppm";
+        //    saveThread = std::thread(saveImage, fb, path.generic_string(), scene.width, scene.height);
+        //}
+
+        if (savePressed) {
+            XRay::Serializer serializer;
+            serializer.serialize(scene, FileDialog);
         }
 
         imGuiRenderer.End(window);
@@ -202,6 +215,9 @@ int main() {
 
         window.pollEvents();
     }
+
+
+    
 
     if (renderThread1.joinable() ) {
         renderThread1.detach();

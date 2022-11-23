@@ -6,8 +6,11 @@ namespace XRay {
 
     class Translate : public Hittable {
     public:
-        Translate(std::shared_ptr<Hittable> p, const vec3& displacement)
-            : ptr(p), offset(displacement) {}
+        Translate(std::shared_ptr<Hittable> p, const vec3& displacement, std::string n)
+            : ptr(p), offset(displacement) {
+            name = n;
+            mat_ptr = p.get()->mat_ptr;
+        }
 
         bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override{
             Ray moved_r(r.origin() - offset, r.direction(), r.time());
@@ -40,6 +43,7 @@ namespace XRay {
     class RotateY : public Hittable {
     public:
         RotateY(std::shared_ptr<Hittable> p, double angle) : ptr(p) {
+            mat_ptr = p.get()->mat_ptr;
             auto radians = degrees_to_radians(angle);
             sin_theta = sin(radians);
             cos_theta = cos(radians);

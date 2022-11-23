@@ -15,8 +15,9 @@ namespace XRay {
 	public:
 		void init(Window window);
 		void Begin();
+		void renderMenuBar();
 		void renderViewport(ImTextureID texture, int image_width, int image_height);
-		void renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, char* filename, int& samples, int& depth, Scene& scene);
+		void renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, bool& openButtonPressed, char* filename, int& samples, int& depth, Scene& scene);
 		void End(Window window);
 	};
 

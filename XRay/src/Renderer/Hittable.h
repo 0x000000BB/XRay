@@ -9,6 +9,10 @@ namespace XRay {
 
     class Material;
 
+    enum ObjectTyp {
+        SphereT = 0,
+    };
+
     struct HitRecord {
         vec3 p;
         vec3 normal;
@@ -28,9 +32,16 @@ namespace XRay {
     public:
         virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const = 0;
         virtual bool boundingBox(double time0, double time1, AABB& output_box) const = 0;
+        virtual double pdf_value(const vec3& o, const vec3& v) const {
+            return 0.0;
+        }
 
+        virtual vec3 random(const vec3& o) const {
+            return vec3(1, 0, 0);
+        }
         std::shared_ptr<Material> mat_ptr;
         std::string name;
+        ObjectTyp typ;
     };
 
 }

@@ -17,6 +17,16 @@ namespace XRay {
             double _time0 = 0,
             double _time1 = 0
         ) {
+            this->lookfrom = lookfrom;
+            this->lookat = lookat;
+            this->vup = vup;
+            this->vfov = vfov;
+            this->aspect_ratio = aspect_ratio;
+            this->aperture = aperture;
+            this->focus_dist = focus_dist;
+            this->time0 = _time0;
+            this->time1 = _time1;
+
             auto theta = degrees_to_radians(vfov);
             auto h = tan(theta / 2);
             auto viewport_height = 2.0 * h;
@@ -53,6 +63,14 @@ namespace XRay {
         vec3 u, v, w;
         double lens_radius;
         double time0, time1;
+
+        vec3   lookfrom;
+        vec3   lookat;
+        vec3   vup;
+        double vfov;
+        double aspect_ratio;
+        double aperture;
+        double focus_dist;
     };
 
 }

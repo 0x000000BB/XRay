@@ -10,9 +10,10 @@ namespace XRay {
         XYRect() {}
 
         XYRect(double _x0, double _x1, double _y0, double _y1, double _k,
-            std::shared_ptr<Material> mat)
+            std::shared_ptr<Material> mat, std::string n)
             : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k) {
             mat_ptr = mat;
+            name = n;
         };
 
         bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override{
@@ -47,9 +48,10 @@ namespace XRay {
         YZRect() {}
 
         YZRect(double _y0, double _y1, double _z0, double _z1, double _k,
-            shared_ptr<Material> mat)
+            shared_ptr<Material> mat, std::string n)
             : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k){
             mat_ptr = mat;
+            name = n;
         };
 
         bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override{
@@ -84,9 +86,10 @@ namespace XRay {
         XZRect() {}
 
         XZRect(double _x0, double _x1, double _z0, double _z1, double _k,
-            shared_ptr<Material> mat)
+            shared_ptr<Material> mat, std::string n)
             : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k) {
             mat_ptr = mat;
+            name = n;
         };
 
         bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override{
@@ -110,6 +113,23 @@ namespace XRay {
         bool boundingBox(double time0, double time1, AABB& output_box) const override {
             output_box = AABB(vec3(x0, k - 0.0001, z0), vec3(x1, k + 0.0001, z1));
             return true;
+        }
+
+        double pdf_value(const vec3& origin, const vec3& v) const override {
+            HitRecord rec;
+            if (!this->hit(Ray(origin, v), 0.001, infinity, rec))
+                return 0;
+
+            auto area = (x1 - x0) * (z1 - z0);
+            auto distance_squared = rec.t * rec.t * v.squared_length();
+            auto cosine = fabs(dot(v, rec.normal) / v.length());
+
+            return distance_squared / (cosine * area);
+        }
+
+        vec3 random(const vec3& origin) const override {
+            auto random_point = vec3(random_double(x0, x1), k, random_double(z0, z1));
+            return random_point - origin;
         }
 
     public:

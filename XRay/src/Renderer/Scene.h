@@ -13,12 +13,13 @@ namespace XRay {
     class Scene : public Hittable {
     public:
         //Scene() {}
-        Scene(Camera& cam, Color& background, int width, float aspect_ratio) {
+        Scene(Camera& cam, Color& background, int width, float aspect_ratio, std::shared_ptr<XRay::Hittable> lights) {
             camera = cam;
             backgroundColor = background;
             this->aspect_ratio = aspect_ratio;
             this->width = width;
             this->height = static_cast<int>(width / aspect_ratio);
+            this->lights = lights;
         }
         Scene(shared_ptr<Hittable> object, Camera& cam) { 
             add(object); 
@@ -66,6 +67,7 @@ namespace XRay {
         int width;
         float aspect_ratio;
         int height;
+        std::shared_ptr<XRay::Hittable> lights;
     };
 
 }

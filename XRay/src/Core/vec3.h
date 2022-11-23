@@ -192,3 +192,23 @@ inline vec3 random_in_unit_disk() {
     }
 }
 
+inline vec3 random_in_hemisphere(const vec3& normal) {
+    vec3 in_unit_sphere = random_in_unit_sphere();
+    if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
+inline vec3 random_cosine_direction() {
+    auto r1 = random_double();
+    auto r2 = random_double();
+    auto z = sqrt(1 - r2);
+
+    auto phi = 2 * pi * r1;
+    auto x = cos(phi) * sqrt(r2);
+    auto y = sin(phi) * sqrt(r2);
+
+    return vec3(x, y, z);
+}
+

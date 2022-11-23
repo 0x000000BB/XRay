@@ -39,12 +39,14 @@ namespace XRay {
 	}
 
 
-    void ImGuiRenderer::renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, char* filename, int& samples, int& depth, Scene& scene) {
+    void ImGuiRenderer::renderSettings(bool& renderButtonPressed, bool& saveButtonPressed, bool& openButtonPressed, char* filename, int& samples, int& depth, Scene& scene) {
+
         ImGui::Begin("Settings");
         renderButtonPressed = ImGui::Button("Render");
         saveButtonPressed = ImGui::Button("Save");
+        openButtonPressed = ImGui::Button("Open");
         ImGui::Separator();
-        ImGui::SliderInt("Samples", &samples, 1, 1000);
+        ImGui::InputInt("Samples", &samples);
         ImGui::SliderInt("Depth", &depth, 1, 50);
         ImGui::Separator();
         Material* material;
@@ -137,6 +139,37 @@ namespace XRay {
                             ImGui::SliderFloat("Ir", &ir, 0, 5);
                         }
                     }
+
+                    else if (material->materialTyp == DiffuseLightT) {
+                        if (ImGui::CollapsingHeader("Diffuse Light")) {
+                            DiffuseLight* m = static_cast<DiffuseLight*>(material);
+                            Texture* texture = static_cast<Texture*>(m->emit.get());
+                            if (texture->typ == SolidColorT) {
+                                SolidColor* t = static_cast<SolidColor*>(m->emit.get());
+                                Color color = t->colorValue;
+                                ImGui::Dummy(ImVec2(45.0f, 10.0f));
+                                ImGui::SameLine();
+                                float c[3] = { color.r(), color.g(), color.b() };
+                                ImGui::ColorPicker3("Albedo", c);
+                                t->colorValue = Color(c[0], c[1], c[2]);
+                                ImGui::SliderFloat("Intensity", &(m->intensity), 0.1, 20);
+                            }
+                        }
+                    }
+
+                    else if (material->materialTyp == IsotropicT && object) {
+                        Isotropic* m = static_cast<Isotropic*>(material);
+                        Texture* texture = static_cast<Texture*>(m->albedo.get());
+                        if (texture->typ == SolidColorT) {
+                            SolidColor* t = static_cast<SolidColor*>(m->albedo.get());
+                            Color color = t->colorValue;
+                            ImGui::Dummy(ImVec2(45.0f, 10.0f));
+                            ImGui::SameLine();
+                            float c[3] = { color.r(), color.g(), color.b() };
+                            ImGui::ColorPicker3("Albedo", c);
+                            t->colorValue = Color(c[0], c[1], c[2]);
+                        }
+                    }
                 }
             }
             ImGui::PopID();
@@ -144,6 +177,17 @@ namespace XRay {
             ImGui::Spacing();
         }
         ImGui::End();
+    }
+
+    void ImGuiRenderer::renderMenuBar() {
+        if (ImGui::BeginMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Save")) {
+
+                }
+            }
+        }
+        ImGui::NewLine();
     }
 
     void ImGuiRenderer::Begin() {

@@ -2,6 +2,7 @@
 #include "../Core/XRay.h"
 #include "Hittable.h"
 #include "Texture.h"
+#include "ONB.h"
 
 namespace XRay {
 
@@ -9,16 +10,22 @@ namespace XRay {
         LambertianT = 0,
         MetalT, 
         DielectricT,
-        DiffuseLightT
+        DiffuseLightT,
+        IsotropicT
     };
 
     class Material {
     public:
-        virtual bool scatter(
-            const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
-        ) const = 0;
+        virtual bool scatter(const Ray& r_in, const HitRecord& rec, Color& albedo, Ray& scattered, double& pdf) const {
+            return false;
+        }
 
-        virtual Color emitted(double u, double v, const vec3& p) const {
+        virtual double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
+            return 0;
+        }
+
+
+        virtual Color emitted(const Ray& r_in, const HitRecord& rec, double u, double v, const vec3& p) const {
             return Color(0, 0, 0);
         }
 
@@ -34,17 +41,25 @@ namespace XRay {
             materialTyp = MaterialTyp::LambertianT;
         }
 
-        virtual bool scatter(
-            const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
-        ) const override {
+        bool scatter(const Ray& r_in, const HitRecord& rec, Color& alb, Ray& scattered, double& pdf) const override {
             auto scatter_direction = rec.normal + random_unit_vector();
 
             if (scatter_direction.near_zero())
                 scatter_direction = rec.normal;
 
-            scattered = Ray(rec.p, scatter_direction, r_in.time());
-            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            ONB uvw;
+            uvw.build_from_w(rec.normal);
+            auto direction = uvw.local(random_cosine_direction());
+
+            scattered = Ray(rec.p, unit_vector(direction), r_in.time());
+            alb = albedo->value(rec.u, rec.v, rec.p);
+            pdf = 0.5 / pi;
             return true;
+        }
+
+        double scattering_pdf(const Ray& r_in, const HitRecord& rec, const Ray& scattered) const {
+            auto cosine = dot(rec.normal, unit_vector(scattered.direction()));
+            return cosine < 0 ? 0 : cosine / pi;
         }
 
     public:
@@ -57,9 +72,7 @@ namespace XRay {
             materialTyp = MaterialTyp::MetalT;
         }
 
-        virtual bool scatter(
-            const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
-        ) const override {
+        bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
             vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
             scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere(), r_in.time());
             attenuation = albedo;
@@ -77,9 +90,7 @@ namespace XRay {
             materialTyp = MaterialTyp::DielectricT;
         }
 
-        virtual bool scatter(
-            const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
-        ) const override {
+        virtual bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
             attenuation = Color(1.0, 1.0, 1.0);
             double refraction_ratio = rec.front_face ? (1.0 / ir) : ir;
 
@@ -113,20 +124,48 @@ namespace XRay {
 
     class DiffuseLight : public Material {
     public:
-        DiffuseLight(shared_ptr<Texture> a) : emit(a) {}
-        DiffuseLight(Color c) : emit(make_shared<SolidColor>(c)) {}
+        DiffuseLight(shared_ptr<Texture> a, float intens) : emit(a), intensity(intens) {
+            materialTyp = DiffuseLightT;
+        }
+        DiffuseLight(Color c, float intens) : emit(make_shared<SolidColor>(c)), intensity(intens) {
+            materialTyp = DiffuseLightT;
+        }
 
-        virtual bool scatter(
-            const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered
-        ) const override {
+        virtual bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
             return false;
         }
 
-        virtual Color emitted(double u, double v, const vec3& p) const override {
-            return emit->value(u, v, p);
+        Color emitted(const Ray& r_in, const HitRecord& rec, double u, double v, const vec3& p) const override {
+
+            if (rec.front_face)
+                return emit->value(u, v, p) * intensity;
+            else
+                return Color(0, 0, 0);
         }
 
     public:
         shared_ptr<Texture> emit;
+        float intensity;
     };
+
+    class Isotropic : public Material {
+    public:
+        Isotropic(Color c) : albedo(make_shared<SolidColor>(c)) {
+            materialTyp = IsotropicT;
+        }
+        Isotropic(shared_ptr<Texture> a) : albedo(a) {
+            materialTyp = IsotropicT;
+        }
+
+        bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
+            scattered = Ray(rec.p, random_in_unit_sphere(), r_in.time());
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            return true;
+        }
+
+    public:
+        shared_ptr<Texture> albedo;
+    };
+
+    
 }
