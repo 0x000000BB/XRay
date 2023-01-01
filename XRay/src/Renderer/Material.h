@@ -8,10 +8,10 @@ namespace XRay {
 
     enum MaterialTyp {
         LambertianT = 0,
-        MetalT, 
-        DielectricT,
-        DiffuseLightT,
-        IsotropicT
+        MetalT = 1, 
+        DielectricT = 2,
+        DiffuseLightT = 3,
+        IsotropicT = 4,
     };
 
     class Material {
@@ -38,6 +38,9 @@ namespace XRay {
             materialTyp = MaterialTyp::LambertianT;
         }
         Lambertian(shared_ptr<Texture> a) : albedo(a) {
+            materialTyp = MaterialTyp::LambertianT;
+        }
+        Lambertian() : albedo(make_shared<SolidColor>(Color(0.8, 0.8, 0.8))) {
             materialTyp = MaterialTyp::LambertianT;
         }
 
@@ -71,6 +74,9 @@ namespace XRay {
         Metal(const Color& a, float f) : albedo(a), fuzz(f < 1 ? f : 1) {
             materialTyp = MaterialTyp::MetalT;
         }
+        Metal() : albedo(Color(0.8, 0.8, 0.8)), fuzz(0.8) {
+            materialTyp = MaterialTyp::MetalT;
+        }
 
         bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
             vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
@@ -87,6 +93,10 @@ namespace XRay {
     class Dielectric : public Material {
     public:
         Dielectric(double index_of_refraction) : ir(index_of_refraction) {
+            materialTyp = MaterialTyp::DielectricT;
+        }
+
+        Dielectric() : ir(5) {
             materialTyp = MaterialTyp::DielectricT;
         }
 
@@ -130,6 +140,9 @@ namespace XRay {
         DiffuseLight(Color c, float intens) : emit(make_shared<SolidColor>(c)), intensity(intens) {
             materialTyp = DiffuseLightT;
         }
+        DiffuseLight() : emit(make_shared<SolidColor>(Color(1, 1, 1))), intensity(1) {
+            materialTyp = DiffuseLightT;
+        }
 
         virtual bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered, double& pdf) const override {
             return false;
@@ -151,6 +164,9 @@ namespace XRay {
     class Isotropic : public Material {
     public:
         Isotropic(Color c) : albedo(make_shared<SolidColor>(c)) {
+            materialTyp = IsotropicT;
+        }
+        Isotropic() : albedo(make_shared<SolidColor>(Color(0.8, 0.8, 0.8))) {
             materialTyp = IsotropicT;
         }
         Isotropic(shared_ptr<Texture> a) : albedo(a) {

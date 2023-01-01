@@ -170,15 +170,15 @@ int main() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scene.width, scene.height, 0, GL_RGB, GL_FLOAT, fb);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        imGuiRenderer.Begin();
+        imGuiRenderer.render(XRay::ViewportInfo{(ImTextureID)texture, scene.width, scene.height}, window, scene);
 
-        imGuiRenderer.renderViewport((ImTextureID)texture, scene.width, scene.height);
+        //imGuiRenderer.renderViewport((ImTextureID)texture, scene.width, scene.height);
         bool renderPressed = false;
         bool savePressed = false;
         bool openPressed = false;
         char* filename = new char[512]; 
         strcpy(filename, "image.ppm");
-        imGuiRenderer.renderSettings(renderPressed, savePressed, openPressed, filename, samples_per_pixel, max_depth, scene);
+        //imGuiRenderer.renderSettings(renderPressed, savePressed, openPressed, filename, samples_per_pixel, max_depth, scene);
         if (renderPressed) {
             if(renderThread1.joinable() && !rendering1)
                 renderThread1.detach();
@@ -204,12 +204,12 @@ int main() {
         //    saveThread = std::thread(saveImage, fb, path.generic_string(), scene.width, scene.height);
         //}
 
-        if (savePressed) {
-            XRay::Serializer serializer;
-            serializer.serialize(scene, FileDialog);
-        }
+        //if (savePressed) {
+        //    XRay::Serializer serializer;
+        //    serializer.serialize(scene, FileDialog);
+        //}
 
-        imGuiRenderer.End(window);
+        //imGuiRenderer.End(window);
 
         window.swapBuffers();
 
